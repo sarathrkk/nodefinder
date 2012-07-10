@@ -14,7 +14,7 @@
 -module (s3nodefinder).
 -export ([ discover/0 ]).
 -behaviour (application).
--export ([ start/0, start/2, stop/0, stop/1 ]).
+-export ([ start/2, stop/1 ]).
 
 %-=====================================================================-
 %-                                Public                               -
@@ -33,11 +33,6 @@ discover () ->
 
 %% @hidden
 
-start () ->
-  application:start (s3nodefinder).
-
-%% @hidden
-
 start (_Type, _Args) ->
   { ok, AccessKeyIdFile } = application:get_env (s3nodefinder, 
                                                  access_key_id_file),
@@ -48,11 +43,6 @@ start (_Type, _Args) ->
   s3nodefindersup:start_link (binary_to_list (AccessKeyIdBinary),
                               SecretAccessKeyFile, 
                               Bucket).
-
-%% @hidden
-
-stop () -> 
-  application:stop (s3nodefinder).
 
 %% @hidden
 

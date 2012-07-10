@@ -4,7 +4,7 @@
 -module (combonodefinder).
 -export ([ discover/0 ]).
 -behaviour (application).
--export ([ start/0, start/2, stop/0, stop/1 ]).
+-export ([ start/2, stop/1 ]).
 
 %-=====================================================================-
 %-                                Public                               -
@@ -18,21 +18,14 @@
 %% @end
 
 discover () ->
-  case is_ec2_host () of
-    true -> ec2nodefindersrv:discover ();
-    false -> nodefindersrv:discover ()
+  case erlang:whereis(nodefindersrv) of
+    undefined -> ec2nodefindersrv:discover ();
+    _ -> nodefindersrv:discover ()
   end.
 
 %-=====================================================================-
 %-                        application callbacks                        -
 %-=====================================================================-
-
-%% @hidden
-
-start () ->
-  crypto:start (),
-  application:start (inets),
-  application:start (combonodefinder).
 
 %% @hidden
 
@@ -44,15 +37,10 @@ start (Type, Args) ->
 
 %% @hidden
 
-stop () ->
-  application:stop (combonodefinder).
-
-%% @hidden
-
 stop (State) ->
-  case is_ec2_host () of
-    true -> ec2nodefinder:stop (State);
-    false -> nodefinder:stop (State)
+  case erlang:whereis(nodefindersrv) of
+    undefined -> ec2nodefinder:stop (State);
+    _ -> nodefinder:stop (State)
   end.
 
 %-=====================================================================-
@@ -60,9 +48,13 @@ stop (State) ->
 %-=====================================================================-
 
 is_ec2_host () ->
-  Host = lists:last (string:tokens (atom_to_list (node ()), "@")),
-
-  case lists:reverse (string:tokens (Host, ".")) of
-    [ "com", "amazonaws" | _ ] -> true;
+  {ok, HostNameShort} = inet:gethostname(),
+  case inet_res:gethostbyname(HostNameShort) of
+    {ok, {hostent, HostNameLong, _, _, _, _}} ->
+      case lists:reverse (string:tokens (HostNameLong, ".")) of
+        [ "internal", "ec2" | _ ] -> true;
+        _ -> false
+      end;
     _ -> false
   end.
+

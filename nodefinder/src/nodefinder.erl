@@ -4,7 +4,7 @@
 -module (nodefinder).
 -export ([ discover/0 ]).
 -behaviour (application).
--export ([ start/0, start/2, stop/0, stop/1 ]).
+-export ([ start/2, stop/1 ]).
 
 %-=====================================================================-
 %-                                Public                               -
@@ -24,22 +24,11 @@ discover () ->
 
 %% @hidden
 
-start () ->
-  crypto:start (),
-  application:start (nodefinder).
-
-%% @hidden
-
 start (_Type, _Args) ->
   { ok, Addr } = application:get_env (nodefinder, addr),
   { ok, Port } = application:get_env (nodefinder, port),
   { ok, Ttl } = application:get_env (nodefinder, multicast_ttl),
   nodefindersup:start_link (Addr, Port, Ttl).
-
-%% @hidden
-
-stop () ->
-  application:stop (nodefinder).
 
 %% @hidden
 

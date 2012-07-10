@@ -49,7 +49,6 @@ init ([ Group, PingTimeout, PrivateKey, Cert, Ec2Home, JavaHome ]) ->
   { ok, _ } = file:read_file_info (PrivateKey),
   { ok, _ } = file:read_file_info (Cert),
 
-  process_flag (trap_exit, true),
   State = #state{ group = Group,
                   ping_timeout = PingTimeout,
                   private_key = PrivateKey,

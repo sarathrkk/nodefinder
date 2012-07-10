@@ -33,7 +33,6 @@ discover () ->
 init ([ AccessKeyId, SecretAccessKeyFile, Bucket ]) ->
   pong = net_adm:ping (node ()), % don't startup unless distributed
 
-  process_flag (trap_exit, true),
   State = #state{ access_key_id = AccessKeyId,
                   secret_access_key_file = shell_escape (SecretAccessKeyFile),
                   bucket = ensure_bucket_name (Bucket) },

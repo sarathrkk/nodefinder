@@ -6,7 +6,7 @@
 
 -module (nodefindersrv).
 -behaviour (gen_server).
--export ([ start_link/2, start_link/3, discover/0 ]).
+-export ([ start_link/3, discover/0 ]).
 -export ([ init/1,
            handle_call/3,
            handle_cast/2,
@@ -14,17 +14,11 @@
            terminate/2,
            code_change/3]).
 
--oldrecord (state).
-
--record (state, { socket, addr, port }).
--record (statev2, { sendsock, recvsock, addr, port }).
+-record (state, { sendsock, recvsock, addr, port }).
 
 %-=====================================================================-
 %-                                Public                               -
 %-=====================================================================-
-
-start_link (Addr, Port) ->
-  start_link (Addr, Port, 1).
 
 start_link (Addr, Port, Ttl) ->
   gen_server:start_link ({ local, ?MODULE }, ?MODULE, [ Addr, Port, Ttl ], []).
@@ -37,7 +31,6 @@ discover () ->
 %-=====================================================================-
 
 init ([ Addr, Port, Ttl ]) ->
-  process_flag (trap_exit, true),
 
   Opts = [ { active, true },
            { ip, Addr },
@@ -48,10 +41,10 @@ init ([ Addr, Port, Ttl ]) ->
 
   { ok, RecvSocket } = gen_udp:open (Port, Opts),
 
-  { ok, discover (#statev2{ recvsock = RecvSocket,
-                            sendsock = send_socket (Ttl),
-                            addr = Addr,
-                            port = Port }) }.
+  { ok, discover (#state{ recvsock = RecvSocket,
+                          sendsock = send_socket (Ttl),
+                          addr = Addr,
+                          port = Port }) }.
 
 handle_call (discover, _From, State) -> { reply, ok, discover (State) };
 handle_call (_Request, _From, State) -> { noreply, State }.
@@ -59,22 +52,16 @@ handle_call (_Request, _From, State) -> { noreply, State }.
 handle_cast (_Request, State) -> { noreply, State }.
 
 handle_info ({ udp, Socket, IP, InPortNo, Packet },
-             State=#statev2{ recvsock = Socket }) ->
+             State=#state{ recvsock = Socket }) ->
   { noreply, process_packet (Packet, IP, InPortNo, State) };
 
 handle_info (_Msg, State) -> { noreply, State }.
 
-terminate (_Reason, State = #statev2{}) ->
-  gen_udp:close (State#statev2.recvsock),
-  gen_udp:close (State#statev2.sendsock),
+terminate (_Reason, State = #state{}) ->
+  gen_udp:close (State#state.recvsock),
+  gen_udp:close (State#state.sendsock),
   ok.
 
-code_change (_OldVsn, State = #state{}, _Extra) -> 
-  NewState = #statev2{ recvsock = State#state.socket,
-                       sendsock = send_socket (1),
-                       addr = State#state.addr,
-                       port = State#state.port },
-  { ok, NewState };
 code_change (_OldVsn, State, _Extra) -> 
   { ok, State }.
 
@@ -87,9 +74,9 @@ discover (State) ->
   Time = seconds (),
   Mac = mac ([ <<Time:64>>, NodeString ]),
   Message = [ "DISCOVERV2 ", Mac, " ", <<Time:64>>, " ", NodeString ],
-  ok = gen_udp:send (State#statev2.sendsock,
-                     State#statev2.addr,
-                     State#statev2.port,
+  ok = gen_udp:send (State#state.sendsock,
+                     State#state.addr,
+                     State#state.port,
                      Message),
   State.
 
@@ -99,12 +86,6 @@ mac (Message) ->
   Key = crypto:sha (erlang:term_to_binary (erlang:get_cookie ())),
   crypto:sha_mac (Key, Message).
 
-process_packet ("DISCOVER " ++ NodeName, IP, InPortNo, State) -> 
-  error_logger:warning_msg ("old DISCOVER packet from ~p (~p:~p) ~n", 
-                            [ NodeName,
-                              IP,
-                              InPortNo ]),
-  State;
 process_packet ("DISCOVERV2 " ++ Rest, IP, InPortNo, State) -> 
   % Falling a mac is not really worth logging, since having multiple
   % cookies on the network is one way to prevent crosstalk.  However
