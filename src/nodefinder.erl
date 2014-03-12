@@ -1,36 +1,47 @@
-%% @doc Nodefinder service.
-%% @end
+%-*-Mode:erlang;coding:utf-8;tab-width:4;c-basic-offset:4;indent-tabs-mode:()-*-
+% ex: set ft=erlang fenc=utf-8 sts=4 ts=4 sw=4 et:
 
--module (nodefinder).
--export ([ discover/0 ]).
--behaviour (application).
--export ([ start/2, stop/1 ]).
+-module(nodefinder).
 
-%-=====================================================================-
-%-                                Public                               -
-%-=====================================================================-
+%% external interface
+-export([multicast_start/0,
+         multicast_start/4,
+         multicast_discover/1,
+         multicast_stop/0]).
 
-%% @spec discover () -> ok
-%% @doc Initiate a discovery request.  Nodes will respond asynchronously
-%% and be added to the erlang node list subsequent to this call returning.
-%% @end
+-spec multicast_start() ->
+    {ok, pid()} |
+    {error, any()}.
 
-discover () ->
-  nodefindersrv:discover ().
+multicast_start() ->
+    multicast_start({224,0,0,1}, 4475, 1, 300).
 
-%-=====================================================================-
-%-                        application callbacks                        -
-%-=====================================================================-
+-spec multicast_start(Addr :: inet:ip_address(),
+                      Port :: inet:port_number(),
+                      TTL :: non_neg_integer(),
+                      TimeoutSeconds :: pos_integer()) ->
+    {ok, pid()} |
+    {error, any()}.
 
-%% @hidden
+multicast_start(Addr, Port, TTL, TimeoutSeconds)
+    when is_integer(Port), Port > 0,
+         is_integer(TTL), TTL >= 0,
+         is_integer(TimeoutSeconds), TimeoutSeconds > 0 ->
+    nodefinder_sup:start_child(nodefinder_multicast,
+                               [Addr, Port, TTL, TimeoutSeconds]).
 
-start (_Type, _Args) ->
-  { ok, Addr } = application:get_env (nodefinder, addr),
-  { ok, Port } = application:get_env (nodefinder, port),
-  { ok, Ttl } = application:get_env (nodefinder, multicast_ttl),
-  nodefindersup:start_link (Addr, Port, Ttl).
+-spec multicast_discover(Timeout :: pos_integer()) ->
+    ok |
+    {error, any()}.
 
-%% @hidden
+multicast_discover(Timeout)
+    when is_integer(Timeout), Timeout > 0 ->
+    nodefinder_multicast:discover(Timeout).
 
-stop (_State) ->
-  ok.
+-spec multicast_stop() ->
+    ok |
+    {error, any()}.
+
+multicast_stop() ->
+    nodefinder_sup:stop_child(nodefinder_multicast).
+

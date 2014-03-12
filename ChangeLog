@@ -1,3 +1,6 @@
+=Version 1.3.2=
+  * major cleanup
+
 =Version 0.2.1=
   * rerelease with upgraded fw-template-erlang
   * dialyzer doesn't know about undocumented arguments to gen_udp:open/2

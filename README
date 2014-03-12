@@ -1,12 +1,58 @@
 nodefinder: Strategies for automatic node discovery in Erlang
+=============================================================
 
-Imported from
-http://code.google.com/p/nodefinder/
+Description
+-----------
 
-Separate repositories created for the various methods:
-s3nodefinder
-ec2nodefinder
-combonodefinder
+All strategies have been combined into this Erlang application after being
+refactored.
 
-nodefinder:
-Erlang node LAN discovery service.  Uses multicast UDP.
+(The source code is a fork of http://code.google.com/p/nodefinder/)
+
+Build
+-----
+
+    rebar compile
+
+Example
+-------
+
+    $ erl -sname foo1@localhost -pz ebin/
+    (foo1@localhost)1> application:start(crypto), application:start(nodefinder).
+    ok
+    (foo1@localhost)2> nodes(). 
+    []
+    (foo1@localhost)3> nodefinder:multicast_start().
+    {ok,<0.52.0>}
+    (foo1@localhost)4> nodes().
+    [foo2@localhost]
+    (foo1@localhost)5> nodefinder:multicast_discover(5000).
+    ok
+    (foo1@localhost)6> nodes().
+    [foo2@localhost]
+    (foo1@localhost)7> nodefinder:multicast_stop().
+    ok
+    (foo1@localhost)8> nodefinder:multicast_stop().
+    {error,not_found}
+    
+    $ erl -sname foo2@localhost -pz ebin/
+    (foo2@localhost)1> application:start(crypto), application:start(nodefinder).
+    ok
+    (foo2@localhost)2> nodes(). 
+    []
+    (foo2@localhost)3> nodefinder:multicast_start().
+    {ok,<0.52.0>}
+    (foo2@localhost)4> nodes().
+    [foo1@localhost]
+    (foo2@localhost)5> nodefinder:multicast_discover(5000).
+    ok
+    (foo2@localhost)6> nodes().
+    [foo1@localhost]
+    (foo2@localhost)7> nodefinder:multicast_stop().
+    ok
+
+License
+-------
+
+BSD
+
