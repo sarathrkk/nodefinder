@@ -68,6 +68,8 @@ Add security group TCP rules for:
 * port 4369 (`epmd`) 10.0.0.0/8
 * ports 4374-4474 (`inet_dist_listen`) 10.0.0.0/8
 
+Example:
+
     $ cat << EOF > sys.config
     [{kernel, [
         {inet_dist_listen_min, 4374},
