@@ -12,7 +12,8 @@ refactored.
 Build
 -----
 
-    rebar compile
+    $ rebar get-deps
+    $ rebar compile
 
 Example
 -------
