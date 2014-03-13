@@ -112,11 +112,11 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Private functions
 %%%------------------------------------------------------------------------
 
-node_names(IPs, #state{} = State) ->
+node_names(Hosts, #state{} = State) ->
     Name = string:sub_word(erlang:atom_to_list(node()), 1, $@),
-    Nodes = lists:foldl(fun(IP, L) ->
-        lists:umerge(L, [erlang:list_to_atom(Name ++ [$@ | IP])])
-    end, [], IPs),
+    Nodes = lists:foldl(fun(Host, L) ->
+        lists:umerge(L, [erlang:list_to_atom(Name ++ [$@ | Host])])
+    end, [], Hosts),
     {ok, Nodes, State}.
 
 ec2_instances_get(#state{groups = [],
@@ -181,30 +181,30 @@ ec2_tagged_instances_get(#state{ec2_config = Config,
             Error
     end.
 
-update_from_instance(Instance, IPs) ->
-    {_, IP} = lists:keyfind(private_ip_address, 1, Instance),
-    lists:umerge(IPs, [IP]).
+update_from_instance(Instance, Hosts) ->
+    {_, Host} = lists:keyfind(private_dns_name, 1, Instance),
+    lists:umerge(Hosts, [Host]).
 
-update_from_instances_set([], IPs) ->
-    IPs;
-update_from_instances_set([Instance | InstancesSet], IPs) ->
+update_from_instances_set([], Hosts) ->
+    Hosts;
+update_from_instances_set([Instance | InstancesSet], Hosts) ->
     update_from_instances_set(InstancesSet,
-                              update_from_instance(Instance, IPs)).
+                              update_from_instance(Instance, Hosts)).
 
-update_from_instances_set([], IPs, _) ->
-    IPs;
-update_from_instances_set([Instance | InstancesSet], IPs, F) ->
-    NextIPs = case F(Instance) of
+update_from_instances_set([], Hosts, _) ->
+    Hosts;
+update_from_instances_set([Instance | InstancesSet], Hosts, F) ->
+    NextHosts = case F(Instance) of
         true ->
-            update_from_instance(Instance, IPs);
+            update_from_instance(Instance, Hosts);
         false ->
-            IPs
+            Hosts
     end,
-    update_from_instances_set(InstancesSet, NextIPs, F).
+    update_from_instances_set(InstancesSet, NextHosts, F).
 
 update_from_groups(#state{ec2_instances = Instances,
                           groups = Groups} = State) ->
-    IPsFound = lists:foldl(fun(Reservation, IPs) ->
+    HostsFound = lists:foldl(fun(Reservation, Hosts) ->
         {_, GroupSet} = lists:keyfind(group_set, 1, Reservation),
         Found = lists:any(fun(Group) ->
             lists:member(Group, GroupSet)
@@ -213,17 +213,17 @@ update_from_groups(#state{ec2_instances = Instances,
             Found =:= true ->
                 {_, InstancesSet} = lists:keyfind(instances_set, 1,
                                                   Reservation),
-                update_from_instances_set(InstancesSet, IPs);
+                update_from_instances_set(InstancesSet, Hosts);
             Found =:= false ->
-                IPs
+                Hosts
         end
     end, [], Instances),
-    node_names(IPsFound, State).
+    node_names(HostsFound, State).
 
 update_from_tags(#state{ec2_instances = Instances,
                         ec2_tagged_instances = TaggedInstances} = State) ->
-    IPsFound = lists:foldl(fun(InstanceId, IPs) ->
-        lists:foldl(fun(Reservation, NextIPs) ->
+    HostsFound = lists:foldl(fun(InstanceId, Hosts) ->
+        lists:foldl(fun(Reservation, NextHosts) ->
             {_, InstancesSet} = lists:keyfind(instances_set, 1, Reservation),
             Check = fun(Instance) ->
                 case lists:keyfind(instance_id, 1, Instance) of
@@ -233,10 +233,10 @@ update_from_tags(#state{ec2_instances = Instances,
                         false
                 end
             end,
-            update_from_instances_set(InstancesSet, NextIPs, Check)
-        end, IPs, Instances)
+            update_from_instances_set(InstancesSet, NextHosts, Check)
+        end, Hosts, Instances)
     end, [], TaggedInstances),
-    node_names(IPsFound, State).
+    node_names(HostsFound, State).
 
 updates_gather(true, true, State) ->
     case update_from_groups(State) of
