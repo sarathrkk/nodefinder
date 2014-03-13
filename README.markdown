@@ -61,7 +61,7 @@ Example
 Functionality details:
 
 * The same Erlang distributed node name is used
-  (so separate Erlang VMs must be on separate EC2 instances)
+  (separate Erlang VMs must be on separate EC2 instances)
 * All instance selection criteria uses OR boolean checks to create a set union
 
 Add security group TCP rules for:
