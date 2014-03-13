@@ -55,6 +55,7 @@ Example
     (foo2@localhost)7> nodefinder:multicast_stop().
     ok
 
+
 **EC2**
 
 Functionality details:
@@ -65,8 +66,9 @@ Functionality details:
 
 Add security group TCP rules for:
 
-* port 4369 (epmd) 10.0.0.0/8
-* ports 4374-4474 (inet_dist_listen) 10.0.0.0/8
+* port 4369 (`epmd`) 10.0.0.0/8
+* ports 4374-4474 (`inet_dist_listen`) 10.0.0.0/8
+
 
     $ cat << EOF > sys.config
     [{kernel, [
@@ -92,6 +94,7 @@ Add security group TCP rules for:
     > nodes().
     > [net_kernel:disconnect(N) || N <- nodes()].
     
+
 * First, connect to all EC2 instances in the "www" security group that are
   running with a 'test' node name
 * Second, connect to all EC2 instances with a tag Tag1=Value1 that are
