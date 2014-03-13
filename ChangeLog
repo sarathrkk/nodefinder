@@ -1,5 +1,6 @@
 =Version 1.3.2=
   * major cleanup
+  * add nodefinder_ec2
 
 =Version 0.2.1=
   * rerelease with upgraded fw-template-erlang

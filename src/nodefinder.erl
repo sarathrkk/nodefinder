@@ -4,10 +4,44 @@
 -module(nodefinder).
 
 %% external interface
--export([multicast_start/0,
+-export([ec2_start/5,
+         ec2_discover/1,
+         ec2_stop/0,
+         multicast_start/0,
          multicast_start/4,
          multicast_discover/1,
-         multicast_stop/0]).
+         multicast_stop/0,
+         timeout_min/0]).
+
+-spec ec2_start(AccessKeyID :: string(),
+                SecretAccessKey :: string(),
+                EC2Host :: string(),
+                Groups :: list(nodefinder_ec2:group()),
+                Tags :: list(nodefinder_ec2:tag())) ->
+    {ok, pid()} |
+    {error, any()}.
+
+ec2_start(AccessKeyID, SecretAccessKey, EC2Host, Groups, Tags)
+    when is_integer(hd(AccessKeyID)), is_integer(hd(SecretAccessKey)),
+         is_integer(hd(EC2Host)), is_list(Groups), is_list(Tags) ->
+    nodefinder_sup:start_child(nodefinder_ec2,
+                               [AccessKeyID, SecretAccessKey, EC2Host,
+                                Groups, Tags]).
+
+-spec ec2_discover(Timeout :: pos_integer()) ->
+    ok |
+    {error, any()}.
+
+ec2_discover(Timeout)
+    when is_integer(Timeout), Timeout > 0 ->
+    nodefinder_ec2:discover(Timeout).
+
+-spec ec2_stop() ->
+    ok |
+    {error, any()}.
+
+ec2_stop() ->
+    nodefinder_sup:stop_child(nodefinder_ec2).
 
 -spec multicast_start() ->
     {ok, pid()} |
@@ -44,4 +78,10 @@ multicast_discover(Timeout)
 
 multicast_stop() ->
     nodefinder_sup:stop_child(nodefinder_multicast).
+
+-spec timeout_min() ->
+    pos_integer().
+
+timeout_min() ->
+    net_kernel:connecttime() + 100.
 

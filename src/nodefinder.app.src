@@ -7,14 +7,17 @@
    {modules, [
         nodefinder,
         nodefinder_app,
+        nodefinder_ec2,
         nodefinder_multicast,
         nodefinder_sup
         ]},
    {registered,[
+        nodefinder_ec2,
         nodefinder_multicast,
         nodefinder_sup
         ]},
    {applications, [
+        erlcloud,
         crypto,
         stdlib,
         kernel

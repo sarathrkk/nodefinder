@@ -17,9 +17,10 @@ Build
 Example
 -------
 
-    $ erl -sname foo1@localhost -pz ebin/
-    (foo1@localhost)1> application:start(crypto), application:start(nodefinder).
-    ok
+    $ erl -sname foo1@localhost -pz ebin/ -pz deps/*/ebin
+    (foo1@localhost)1> application:ensure_all_started(nodefinder).
+    {ok,[asn1,public_key,ssl,xmerl,inets,jsx,erlcloud,
+         nodefinder]}
     (foo1@localhost)2> nodes(). 
     []
     (foo1@localhost)3> nodefinder:multicast_start().
@@ -35,9 +36,10 @@ Example
     (foo1@localhost)8> nodefinder:multicast_stop().
     {error,not_found}
     
-    $ erl -sname foo2@localhost -pz ebin/
-    (foo2@localhost)1> application:start(crypto), application:start(nodefinder).
-    ok
+    $ erl -sname foo2@localhost -pz ebin/ -pz deps/*/ebin
+    (foo2@localhost)1> application:ensure_all_started(nodefinder).
+    {ok,[asn1,public_key,ssl,xmerl,inets,jsx,erlcloud,
+         nodefinder]}
     (foo2@localhost)2> nodes(). 
     []
     (foo2@localhost)3> nodefinder:multicast_start().

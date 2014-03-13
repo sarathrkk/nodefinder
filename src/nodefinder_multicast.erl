@@ -88,7 +88,7 @@ terminate(_Reason,
     gen_udp:close(SendSock),
     ok.
 
-code_change (_OldVsn, State, _Extra) -> 
+code_change(_OldVsn, State, _Extra) -> 
     {ok, State}.
 
 %%%------------------------------------------------------------------------
@@ -124,7 +124,7 @@ process_packet("DISCOVERV2 " ++ Rest, IP, InPortNo,
                 Delta >= (-1 * ?SECONDS_DELTA), Delta < Timeout ->
                     Node = erlang:list_to_atom(
                         erlang:binary_to_list(NodeString)),
-                    net_adm:ping(Node);
+                    net_kernel:connect_node(Node);
                 true ->
                     error_logger:warning_msg("expired DISCOVERV2 (~p) "
                                              "from ~p:~p~n",
