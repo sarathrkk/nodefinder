@@ -63,6 +63,8 @@ Functionality details:
 * The same Erlang distributed node name is used
   (separate Erlang VMs must be on separate EC2 instances)
 * All instance selection criteria uses OR boolean checks to create a set union
+* Connections between availability zones are not supported due to the
+  high latency
 
 Add security group TCP rules for:
 
