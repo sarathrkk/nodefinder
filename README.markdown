@@ -17,6 +17,8 @@ Build
 Example
 -------
 
+**LAN multicast**
+
     $ erl -sname foo1@localhost -pz ebin/ -pz deps/*/ebin
     (foo1@localhost)1> application:ensure_all_started(nodefinder).
     {ok,[asn1,public_key,ssl,xmerl,inets,jsx,erlcloud,
@@ -52,6 +54,50 @@ Example
     [foo1@localhost]
     (foo2@localhost)7> nodefinder:multicast_stop().
     ok
+
+**EC2**
+
+Functionality details:
+
+* The same Erlang distributed node name is used
+  (so separate Erlang VMs must be on separate EC2 instances)
+* All instance selection criteria uses OR boolean checks to create a set union
+
+Add security group TCP rules for:
+
+* port 4369 (epmd) 10.0.0.0/8
+* ports 4374-4474 (inet_dist_listen) 10.0.0.0/8
+
+    $ cat << EOF > sys.config
+    [{kernel, [
+        {inet_dist_listen_min, 4374},
+        {inet_dist_listen_max, 4474}]}].
+    EOF
+    $ erl -name test -config sys.config -pz ebin/ -pz deps/*/ebin
+    > application:ensure_all_started(nodefinder).
+    > nodes().
+    > Host = "ec2.amazonaws.com".
+    > Key = "".
+    > SecretKey = "".
+    > nodefinder:ec2_start(Key, SecretKey, Host, ["www"], []).
+    > nodefinder:ec2_stop().
+    > nodes().
+    > [net_kernel:disconnect(N) || N <- nodes()].
+    > nodefinder:ec2_start(Key, SecretKey, Host, [], [{"Tag1", "Value1"}]).
+    > nodefinder:ec2_stop().
+    > nodes().
+    > [net_kernel:disconnect(N) || N <- nodes()].
+    > nodefinder:ec2_start(Key, SecretKey, Host, [], ["Tag1"]).
+    > nodefinder:ec2_stop().
+    > nodes().
+    > [net_kernel:disconnect(N) || N <- nodes()].
+    
+* First, connect to all EC2 instances in the "www" security group that are
+  running with a 'test' node name
+* Second, connect to all EC2 instances with a tag Tag1=Value1 that are
+  running with a 'test' node name
+* Third, connect to all EC2 instances with a tag Tag1 that are
+  running with a 'test' node name
 
 License
 -------
