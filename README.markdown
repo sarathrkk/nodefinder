@@ -60,15 +60,13 @@ Example
 
 Functionality details:
 
-* The same Erlang distributed node name is used
-  (so separate Erlang VMs must be on separate EC2 instances)
+* The same Erlang distributed node name is used (so separate Erlang VMs must be on separate EC2 instances)
 * All instance selection criteria uses OR boolean checks to create a set union
 
 Add security group TCP rules for:
 
 * port 4369 (`epmd`) 10.0.0.0/8
 * ports 4374-4474 (`inet_dist_listen`) 10.0.0.0/8
-
 
     $ cat << EOF > sys.config
     [{kernel, [
@@ -95,12 +93,9 @@ Add security group TCP rules for:
     > [net_kernel:disconnect(N) || N <- nodes()].
     
 
-* First, connect to all EC2 instances in the "www" security group that are
-  running with a 'test' node name
-* Second, connect to all EC2 instances with a tag Tag1=Value1 that are
-  running with a 'test' node name
-* Third, connect to all EC2 instances with a tag Tag1 that are
-  running with a 'test' node name
+* First, connect to all EC2 instances in the "www" security group that are running with a 'test' node name
+* Second, connect to all EC2 instances with a tag Tag1=Value1 that are running with a 'test' node name
+* Third, connect to all EC2 instances with a tag Tag1 that are running with a 'test' node name
 
 License
 -------
