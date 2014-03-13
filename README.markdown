@@ -60,7 +60,8 @@ Example
 
 Functionality details:
 
-* The same Erlang distributed node name is used (so separate Erlang VMs must be on separate EC2 instances)
+* The same Erlang distributed node name is used
+  (so separate Erlang VMs must be on separate EC2 instances)
 * All instance selection criteria uses OR boolean checks to create a set union
 
 Add security group TCP rules for:
@@ -95,9 +96,12 @@ Example:
     > [net_kernel:disconnect(N) || N <- nodes()].
     
 
-* First, connect to all EC2 instances in the "www" security group that are running with a 'test' node name
-* Second, connect to all EC2 instances with a tag Tag1=Value1 that are running with a 'test' node name
-* Third, connect to all EC2 instances with a tag Tag1 that are running with a 'test' node name
+* First, connect to all EC2 instances in the "www" security group
+  that are running with a 'test' node name
+* Second, connect to all EC2 instances with a tag Tag1=Value1
+  that are running with a 'test' node name
+* Third, connect to all EC2 instances with a tag Tag1
+  that are running with a 'test' node name
 
 License
 -------
