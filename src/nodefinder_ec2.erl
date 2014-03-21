@@ -221,6 +221,9 @@ preprocess_set([], L2, _Type) ->
     {ok, lists:reverse(L2)};
 preprocess_set([{'AND', L1} | L0], L2, Type) ->
     case preprocess_set(preprocess_set_cleanup(L1, 'AND'), Type) of
+        {ok, [{'AND', NewL1H} | NewL1T]} ->
+            % merge ANDs at the same level
+            preprocess_set(L0, [{'AND', NewL1H ++ NewL1T} | L2], Type);
         {ok, NewL1} ->
             preprocess_set(L0, [{'AND', NewL1} | L2], Type);
         {error, _} = Error ->
@@ -228,6 +231,9 @@ preprocess_set([{'AND', L1} | L0], L2, Type) ->
     end;
 preprocess_set([{'OR', L1} | L0], L2, Type) ->
     case preprocess_set(preprocess_set_cleanup(L1, 'OR'), Type) of
+        {ok, [{'OR', NewL1H} | NewL1T]} ->
+            % merge ORs at the same level
+            preprocess_set(L0, [{'OR', NewL1H ++ NewL1T} | L2], Type);
         {ok, NewL1} ->
             preprocess_set(L0, [{'OR', NewL1} | L2], Type);
         {error, _} = Error ->
@@ -617,6 +623,25 @@ logic4_case1_test() ->
                     [{"A",["B"]}]]}]}
      ] = logic_case1_tags_preprocess(TagsInput1),
     ["A2", "C2", "C3", "C4", "C5"] = logic_case1_tags_process(TagsInput1),
+    ok.
+
+logic5_case1_test() ->
+    TagsInput1 = [{'OR', [{"C", ["C"]}, "C"]},
+                  {'OR', [{'OR', ["C", "C", "C", "C"]}, {"C", ["B"]}]},
+                  {'OR', ["A", {["A", "B", "C"], ["A", "B"]}, {"A", "B"}]}],
+    [{'OR',[[{"C",[]}],
+            [{"C",[]}],
+            [{"C",[]}],
+            [{"C",[]}],
+            [{"C",["C"]}],
+            [{"C",[]}],
+            [{"C",["B"]}],
+            [{"A",[]}],
+            [{"A",["A","B"]},{"B",["A","B"]},{"C",["A","B"]}],
+            [{"A",["B"]}]]}
+     ] = logic_case1_tags_preprocess(TagsInput1),
+    ["A1","A2","B1","C1","C2","C3","C4","C5"
+     ] = logic_case1_tags_process(TagsInput1),
     ok.
 
 logic1_case2_test() ->

@@ -9,7 +9,7 @@ refactored.
 
 (The source code is a fork of http://code.google.com/p/nodefinder/)
 
-EC2 tags and group selection are selected with the following syntax
+EC2 tags and groups selection are selected with the following syntax
 (if a tuple doesn't make the boolean expression
  explicitly AND or OR the list is implicitly an OR):
 
@@ -17,11 +17,13 @@ EC2 tags and group selection are selected with the following syntax
      {'AND', [Entry...]} |
      {'OR', [Entry...]}]
      
-    tags: Entry == "key" | ["key1", "key2"] |
-                   {"key3", "value3"} |
-                   {["key4", "key5"], "value4"} |
-                   {"key6", ["value6", "value7"]} |
-                   {["key8", "key9"], ["value9", "value8"]}
+      tags: Entry == "key" |
+                     ["key1", "key2"] |
+                     {"key3", "value3"} |
+                     {["key4", "key5"], "value4"} |
+                     {"key6", ["value6", "value7"]} |
+                     {["key8", "key9"], ["value9", "value8"]}
+     
     groups: Entry == "security_group_name"
 
 
