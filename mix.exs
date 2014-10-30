@@ -3,16 +3,15 @@ defmodule Nodefinder.Mixfile do
 
   def project do
     [app: :nodefinder,
-     version: "1.3.3-alpha.1",
+     version: "1.3.3-rc.4",
+     language: :erlang,
      description: description,
      package: package,
      deps: deps]
   end
 
   defp deps do
-    [{:erlcloud,
-      [git: "https://github.com/gleber/erlcloud.git",
-       branch: "master"]}]
+    [{:erlcloud, "~> 0.9.1"}]
   end
 
   defp description do
