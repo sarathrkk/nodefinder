@@ -11,7 +11,7 @@ defmodule Nodefinder.Mixfile do
   end
 
   defp deps do
-    [{:erlcloud, "~> 0.9.2-rc.1"}]
+    [{:erlcloud, "~> 0.9.2"}]
   end
 
   defp description do
