@@ -3,7 +3,7 @@ defmodule Nodefinder.Mixfile do
 
   def project do
     [app: :nodefinder,
-     version: "1.5.0",
+     version: "1.5.1",
      language: :erlang,
      description: description,
      package: package,
@@ -20,7 +20,7 @@ defmodule Nodefinder.Mixfile do
 
   defp package do
     [files: ~w(src doc rebar.config AUTHORS LICENSE ChangeLog README.markdown),
-     contributors: ["Michael Truog", "Paul Mineiro"],
+     maintainers: ["Michael Truog", "Paul Mineiro"],
      licenses: ["BSD"],
      links: %{"GitHub" => "https://github.com/okeuday/nodefinder"}]
    end
