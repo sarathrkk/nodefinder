@@ -10,6 +10,19 @@ defmodule Nodefinder.Mixfile do
      deps: deps]
   end
 
+  def application do
+    [applications: [
+       :erlcloud,
+       :crypto],
+     mod: {:nodefinder_app, []},
+     registered: [
+       :nodefinder_ec2,
+       :nodefinder_multicast,
+       :nodefinder_sup],
+     env: [
+       node_type: :visible]]
+  end
+
   defp deps do
     [{:erlcloud, "~> 0.9.2"}]
   end
