@@ -3,7 +3,7 @@ defmodule Nodefinder.Mixfile do
 
   def project do
     [app: :nodefinder,
-     version: "1.5.2",
+     version: "1.5.3",
      language: :erlang,
      description: description,
      package: package,
@@ -12,8 +12,11 @@ defmodule Nodefinder.Mixfile do
 
   def application do
     [applications: [
-       :erlcloud,
-       :crypto],
+       :inets,
+       :xmerl,
+       :crypto,
+       :public_key,
+       :ssl],
      mod: {:nodefinder_app, []},
      registered: [
        :nodefinder_ec2,
@@ -24,7 +27,7 @@ defmodule Nodefinder.Mixfile do
   end
 
   defp deps do
-    [{:erlcloud, "~> 0.13.5"}]
+    []
   end
 
   defp description do
