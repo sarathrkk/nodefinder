@@ -92,6 +92,7 @@ extract_instance(Node) ->
                        {code, list_to_integer(get_text("instanceState/code", Node, "0"))},
                        {name, get_text("instanceState/name", Node)}
                       ]},
+     {custom_dns_name, get_my_node_name(xmerl_xpath:string("tagSet/item", Node)) ++ ".localdomain"},
      {private_dns_name, get_text("privateDnsName", Node)},
      {dns_name, get_text("dnsName", Node)},
      {reason, get_text("reason", Node, none)},
@@ -124,6 +125,12 @@ extract_instance(Node) ->
        || Item <- xmerl_xpath:string("tagSet/item", Node)]},
      {network_interface_set, [extract_network_interface(Item) || Item <- xmerl_xpath:string("networkInterfaceSet/item", Node)]}
     ].
+
+get_my_node_name(Node) ->
+case lists:filter(fun(Y) -> get_text("key", Y) =:= "opsworks:instance" end, Node) of
+  [Result] -> get_text("value", Result);
+  [] -> ""
+end.
 
 extract_group(Node) ->
      [{group_id, get_text("groupId", Node)},
