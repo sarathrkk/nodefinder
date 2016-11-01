@@ -402,7 +402,7 @@ ec2_tagged_instances_get(#state{ec2_instances = EC2Instances,
     end.
 
 update_from_instance(Instance, Hosts) ->
-    {_, Host} = lists:keyfind(private_dns_name, 1, Instance),
+    {_, Host} = lists:keyfind(custom_dns_name, 1, Instance),
     lists:umerge(Hosts, [Host]).
 
 update_from_instances_set([], Hosts) ->
